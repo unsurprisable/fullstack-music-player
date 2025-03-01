@@ -58,3 +58,8 @@ func GetAllSongs() ([]models.Song, error) {
 
 	return songs, nil
 }
+
+func ResetSongsTable() error {
+	_, err := db.Exec("TRUNCATE TABLE songs RESTART IDENTITY")
+	return err
+}

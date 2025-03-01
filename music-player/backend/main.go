@@ -29,15 +29,24 @@ func main() {
 	r.POST("/upload", handlers.UploadSong)
 
 	// view all stored songs
-	r.GET("/songlist", func(c *gin.Context) {
+	r.GET("/songs", func(c *gin.Context) {
 		songs, err := database.GetAllSongs()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "There was an error while retrieving stored songs!"})
 			log.Fatal(err)
 			return
 		}
-
 		c.JSON(http.StatusOK, songs)
+	})
+
+	// reset db
+	r.GET("/songs/clear", func(c *gin.Context) {
+		if err := database.ResetSongsTable(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "There was an error while clearing the database!"})
+			log.Fatal(err)
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Cleared stored song metadata."})
 	})
 
 	r.Run(":8080")

@@ -65,7 +65,7 @@ func getMetadata(filePath string) (string, string, string) {
 	defer tag.Close()
 
 	title := tag.Title()
-	artist := tag.Album()
+	artist := tag.Artist()
 	album := tag.Album()
 
 	return title, artist, album
