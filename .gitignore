@@ -1,0 +1,25 @@
+# Ignore node_modules (frontend dependencies)
+frontend/node_modules/
+
+# Ignore Go binaries and dependencies
+backend/bin/
+backend/vendor/
+backend/*.exe
+backend/*.out
+
+# Ignore compiled Svelte files
+frontend/.svelte-kit/
+frontend/build/
+
+# Ignore uploaded files
+backend/uploads/
+
+# Ignore environment variables
+.env
+
+# Ignore PostgreSQL data since it's local
+postgres-data/
+
+# Ignore IDE settings
+.vscode/
+.DS_Store
