@@ -63,3 +63,19 @@ func ResetSongsTable() error {
 	_, err := db.Exec("TRUNCATE TABLE songs RESTART IDENTITY")
 	return err
 }
+
+func GetSongById(id int) (*models.Song, error) {
+	var song models.Song
+
+	row := db.QueryRow("SELECT id, filename, title, artist, album, uploaded_at FROM songs WHERE id = $1", id)
+
+	err := row.Scan(&song.ID, &song.Filename, &song.Title, &song.Artist, &song.Album, &song.UploadedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // no song in db with that id
+		}
+		return nil, err
+	}
+
+	return &song, nil
+}

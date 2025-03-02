@@ -2,15 +2,19 @@ package handlers
 
 import (
 	"backend/database"
+	"backend/models"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/bogem/id3v2/v2"
 	"github.com/gin-gonic/gin"
 )
+
+const uploadDir = "./uploads"
 
 func UploadSong(c *gin.Context) {
 	// get the file
@@ -25,8 +29,6 @@ func UploadSong(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Only MP3 files are allowed!"})
 		return
 	}
-
-	const uploadDir = "./uploads"
 
 	// save destination with inline string & filename
 	dst := fmt.Sprintf("%s/%s", uploadDir, file.Filename)
@@ -51,7 +53,7 @@ func UploadSong(c *gin.Context) {
 	})
 
 	title, artist, album := getMetadata(dst)
-	if err := database.InsertSongMetadata(title, artist, album, dst); err != nil {
+	if err := database.InsertSongMetadata(title, artist, album, file.Filename); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -69,4 +71,89 @@ func getMetadata(filePath string) (string, string, string) {
 	album := tag.Album()
 
 	return title, artist, album
+}
+
+func GetAllSongs(c *gin.Context) {
+	songs, err := database.GetAllSongs()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "There was an error while retrieving stored songs!"})
+		log.Println(err)
+		return
+	}
+
+	formattedSongs := make([]gin.H, len(songs))
+
+	for i, song := range songs {
+		formattedSongs[i] = exportSong(&song)
+	}
+
+	c.JSON(http.StatusOK, formattedSongs)
+}
+
+func ResetStoredData(c *gin.Context) {
+	// reset db table
+	if err := database.ResetSongsTable(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "There was an error while clearing the database!"})
+		log.Println(err)
+		return
+	}
+	// delete /uploads directory
+	if err := os.RemoveAll(uploadDir); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "There was an error while deleting stored files!"})
+		log.Println(err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Cleared stored song metadata."})
+}
+
+func GetSongById(c *gin.Context) {
+	rawId := c.Param("id")
+
+	id, err := strconv.Atoi(rawId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid ID."})
+		return
+	}
+
+	song, err := database.GetSongById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Couldn't fetch from database!"})
+		log.Println(err)
+		return
+	}
+	if song == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "That song does not exist."})
+		return
+	}
+
+	c.JSON(http.StatusOK, exportSong(song))
+}
+
+func exportSong(song *models.Song) gin.H {
+	return gin.H{
+		"id":         song.ID,
+		"title":      song.Title,
+		"artist":     song.Artist,
+		"album":      song.Album,
+		"uploadedAt": song.UploadedAt,
+		"fileURL":    fmt.Sprintf("http://localhost:8080/songs/file/%s", song.Filename),
+	}
+}
+
+func ServeSongFile(c *gin.Context) {
+	fileName := c.Param("filename")
+
+	filePath := fmt.Sprintf("%s/%s", uploadDir, fileName)
+
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "File not found."})
+		log.Println(err)
+		return
+	}
+
+	c.Header("Content-Disposition", "inline")
+	c.Header("Content-Type", "audio/mpeg")
+
+	c.File(filePath)
 }

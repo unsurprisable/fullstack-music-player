@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
@@ -15,10 +16,18 @@ func main() {
 	if err := database.InitDB(); err != nil {
 		log.Fatal("Database connection failed: ", err)
 	}
+	log.Println("Database connection established")
 	// properly close the db connection when the program ends
 	defer database.CloseDB()
 
 	r := gin.Default() // set up gin
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type"},
+		AllowCredentials: true,
+	}))
 
 	// add listener for GET requests on root directory saying that the backend is running
 	r.GET("/", func(c *gin.Context) {
@@ -29,25 +38,15 @@ func main() {
 	r.POST("/upload", handlers.UploadSong)
 
 	// view all stored songs
-	r.GET("/songs", func(c *gin.Context) {
-		songs, err := database.GetAllSongs()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "There was an error while retrieving stored songs!"})
-			log.Fatal(err)
-			return
-		}
-		c.JSON(http.StatusOK, songs)
-	})
+	r.GET("/songs", handlers.GetAllSongs)
 
 	// reset db
-	r.GET("/songs/clear", func(c *gin.Context) {
-		if err := database.ResetSongsTable(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "There was an error while clearing the database!"})
-			log.Fatal(err)
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Cleared stored song metadata."})
-	})
+	r.GET("/songs/clear", handlers.ResetStoredData)
+
+	// get a single song by id
+	r.GET("/songs/:id", handlers.GetSongById)
+
+	r.GET("/songs/file/:filename", handlers.ServeSongFile)
 
 	r.Run(":8080")
 }
