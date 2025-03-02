@@ -15,7 +15,7 @@ frontend/build/
 backend/uploads/
 
 # Ignore environment variables
-.env
+*/.env
 
 # Ignore PostgreSQL data since it's local
 postgres-data/

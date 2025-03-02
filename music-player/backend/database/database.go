@@ -3,13 +3,28 @@ package database
 import (
 	"backend/models"
 	"database/sql"
+	"fmt"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 var db *sql.DB
 
 func InitDB() error {
-	var err error // DANGER DANGER DANGER - USERNAME AND PASSWORD EXPOSED ON NEXT LINE:
-	db, err = sql.Open("postgres", "user=postgres password=peekaboosnakesql dbname=music sslmode=disable")
+	if err := godotenv.Load(); err != nil {
+		return err
+	}
+
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbSSLMode := os.Getenv("DB_SSL_MODE")
+
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbUser, dbPassword, dbName, dbSSLMode)
+
+	var err error
+	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		return err
 	}
