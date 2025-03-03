@@ -1,3 +1,5 @@
+<h1>Upload Song</h1>
+
 <script lang="ts">
   let file = $state<File | null>(null);
 
@@ -34,8 +36,6 @@
     }
   }
 </script>
-
-<h1>Upload Song</h1>
 
 <input type="file" onchange={handleFileChange}>
 

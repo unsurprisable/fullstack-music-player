@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Song } from "$lib/types";
   
-  let { song } = $props<{song: Song}>()
+  let { song } = $props<{song: Song}>();
 </script>
 
 <p>======================================================</p>

@@ -38,12 +38,25 @@ func UploadSong(c *gin.Context) {
 		err := os.MkdirAll(uploadDir, os.ModePerm)
 		if err != nil {
 			log.Fatal("Failed to create uploads directory: ", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the file!"})
 		}
 	}
 
 	// attempt to save the file locally in /backend/uploads
 	if err := c.SaveUploadedFile(file, dst); err != nil {
+		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the file!"})
+		return
+	}
+
+	title, artist, album := getMetadata(dst)
+	// so it has some form of identifier
+	if title == "" {
+		title = strings.TrimSuffix(file.Filename, ".mp3")
+	}
+	if err := database.InsertSongMetadata(title, artist, album, file.Filename); err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the file metadata to database!"})
 		return
 	}
 
@@ -51,24 +64,20 @@ func UploadSong(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": fmt.Sprintf("File '%s' uploaded successfully!", file.Filename),
 	})
-
-	title, artist, album := getMetadata(dst)
-	if err := database.InsertSongMetadata(title, artist, album, file.Filename); err != nil {
-		log.Fatal(err)
-	}
 }
 
 // parse incoming mp3 and retrieve some metadata
 func getMetadata(filePath string) (string, string, string) {
 	tag, err := id3v2.Open(filePath, id3v2.Options{Parse: true})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return "", "", ""
 	}
 	defer tag.Close()
 
-	title := tag.Title()
-	artist := tag.Artist()
-	album := tag.Album()
+	title := strings.TrimSpace(tag.Title())
+	artist := strings.TrimSpace(tag.Artist())
+	album := strings.TrimSpace(tag.Album())
 
 	return title, artist, album
 }
