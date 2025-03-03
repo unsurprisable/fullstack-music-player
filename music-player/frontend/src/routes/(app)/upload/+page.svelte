@@ -1,23 +1,25 @@
 <h1>Upload Song</h1>
 
 <script lang="ts">
-  let file = $state<File | null>(null);
+  let files = $state<FileList | null>(null);
 
   function handleFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input && input.files) {
-      file = input.files[0];
+      files = input.files;
     }
   }
 
-  async function uploadFile() {
-    if (!file) {
-      alert('Please select a file to upload!');
+  async function uploadFiles() {
+    if (!files || files.length === 0) {
+      alert('Please select at least 1 file to upload!');
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', file);
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i])
+    }
 
     try {
       const response = await fetch('http://localhost:8080/upload', {
@@ -26,21 +28,21 @@
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload file');
+        throw new Error('Failed to upload files');
       }
 
       const data = await response.json();
       console.log(data);
     } catch (error) {
-      console.error("Error uploading file: ", error);
+      console.error("Error uploading files: ", error);
     }
   }
 </script>
 
-<input type="file" onchange={handleFileChange}>
+<input type="file" accept=".mp3" multiple onchange={handleFileChange}>
 
 <div style="margin-top: 20px;">
-  <button onclick={uploadFile} class="fancy-button">
+  <button onclick={uploadFiles} class="fancy-button">
     <span>Upload</span>
   </button>
 </div>
