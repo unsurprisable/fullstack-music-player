@@ -1,6 +1,7 @@
 <h1>Audio Player</h1>
 
 <script lang="ts">
+    import { apiFetch } from "$lib/api";
   import type { Song } from "$lib/types";
   import SongElement from "./SongElement.svelte";
   import { onDestroy } from "svelte";
@@ -20,15 +21,12 @@
 
   async function fetchAllSongs() {
     try {
-      const response = await fetch("http://localhost:8080/songs");
-      if (!response.ok) throw new Error("Failed to fetch songs (response not OK)");
-      
-      const data: Song[] = await response.json();
+      const data: Song[] = await apiFetch<Song[]>("/songs");
       songs = data;
       song = songs[0];
       loadSong(song);
     } catch (error) {
-      console.error("Error fetching songs: ", error);
+      console.error(error);
       alert("Unable to fetch songs");
     }
   }

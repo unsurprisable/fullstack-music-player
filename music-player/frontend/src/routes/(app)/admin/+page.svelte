@@ -1,15 +1,14 @@
 <h1>Admin Page</h1>
 
 <script>
+    import { apiFetch } from "$lib/api";
+
   async function clearDatabase() {
     try {
-      const response = await fetch("http://localhost:8080/songs/clear")
-      if (!response.ok) throw new Error();
-
-      const data = await response.json();
-      console.log(data);
+      const data = await apiFetch("/songs/clear");
+      console.log(data)
     } catch (error) {
-      console.error("Error cleaing database: ", error);
+      console.error(error)
     }
   }
 </script>

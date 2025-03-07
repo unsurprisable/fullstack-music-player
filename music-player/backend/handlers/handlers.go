@@ -108,6 +108,23 @@ func UploadSong(c *gin.Context) {
 	})
 }
 
+func DeleteSongByID(c *gin.Context) {
+	rawId := c.Param("id")
+
+	id, err := strconv.Atoi(rawId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID."})
+		return
+	}
+
+	if err = database.DeleteSongById(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete song."})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Song deleted!"})
+}
+
 // parse incoming mp3 and retrieve some metadata
 func getMetadata(filePath string) (string, string, string) {
 	tag, err := id3v2.Open(filePath, id3v2.Options{Parse: true})
@@ -154,10 +171,10 @@ func ResetStoredData(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Cleared stored song metadata."})
+	c.JSON(http.StatusOK, gin.H{"message": "Cleared stored songs and playlists."})
 }
 
-func GetSongById(c *gin.Context) {
+func GetSongByID(c *gin.Context) {
 	rawId := c.Param("id")
 
 	id, err := strconv.Atoi(rawId)

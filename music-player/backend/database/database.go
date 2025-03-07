@@ -9,6 +9,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const schemaPath = "../db/schema.sql"
+
 var db *sql.DB
 
 func InitDB() error {
@@ -31,6 +33,18 @@ func InitDB() error {
 
 	// make sure the connection worked
 	err = db.Ping()
+	if err != nil {
+		return err
+	}
+
+	// find schema.sql file
+	schema, err := os.ReadFile(schemaPath)
+	if err != nil {
+		return err
+	}
+
+	// set up database tables from schema.sql
+	_, err = db.Exec(string(schema))
 	if err != nil {
 		return err
 	}
@@ -75,8 +89,12 @@ func GetAllSongs() ([]models.Song, error) {
 }
 
 func ResetSongsTable() error {
-	_, err := db.Exec("TRUNCATE TABLE songs RESTART IDENTITY")
-	return err
+	_, err := db.Exec("TRUNCATE TABLE playlists_songs, songs, playlists RESTART IDENTITY CASCADE")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetSongById(id int) (*models.Song, error) {
@@ -93,4 +111,34 @@ func GetSongById(id int) (*models.Song, error) {
 	}
 
 	return &song, nil
+}
+
+func DeleteSongById(id int) error {
+	// create transaction with db
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// delete from playlists_songs first since this table relies on the IDs from songs
+	// things could break if an ID is deleted from songs but remains in playlists_songs
+	_, err = tx.Exec("DELETE FROM playlists_songs WHERE song_id = $1", id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM songs WHERE id = $1", id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// finalize the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

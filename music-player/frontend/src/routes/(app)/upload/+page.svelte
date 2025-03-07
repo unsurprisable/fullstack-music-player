@@ -1,6 +1,8 @@
 <h1>Upload Song</h1>
 
 <script lang="ts">
+    import { apiFetch } from "$lib/api";
+
   let files = $state<FileList | null>(null);
 
   function handleFileChange(event: Event) {
@@ -22,19 +24,13 @@
     }
 
     try {
-      const response = await fetch('http://localhost:8080/upload', {
+      const data = await apiFetch("/upload", {
         method: 'POST',
-        body: formData,
+        body: formData
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload files');
-      }
-
-      const data = await response.json();
       console.log(data);
     } catch (error) {
-      console.error("Error uploading files: ", error);
+      console.error(error);
     }
   }
 </script>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Song } from "$lib/types";
   
-  let { song } = $props<{song: Song}>();
+  let { song, onclick } = $props<{song: Song, onclick: Function}>();
 </script>
 
 <p>======================================================</p>
@@ -12,3 +12,6 @@
   <source src={song.fileURL} type ="audio/mpeg" />
   Your browser does not support the audio element.
 </audio>
+<div>
+  <button {onclick}>Delete</button>
+</div>

@@ -37,16 +37,26 @@ func main() {
 	// add listener for POST request to upload songs
 	r.POST("/upload", handlers.UploadSong)
 
-	// view all stored songs
+	// get all songs or by id/filename
 	r.GET("/songs", handlers.GetAllSongs)
-
-	// reset db
-	r.GET("/songs/clear", handlers.ResetStoredData)
-
-	// get a single song by id
-	r.GET("/songs/:id", handlers.GetSongById)
-
+	r.GET("/songs/:id", handlers.GetSongByID)
 	r.GET("/songs/file/:filename", handlers.ServeSongFile)
+
+	// delete all songs or by id
+	r.GET("/songs/clear", handlers.ResetStoredData)
+	r.DELETE("/songs/:id", handlers.DeleteSongByID)
+
+	// TODO
+	r.GET("/playlists")
+	r.GET("/playlists/:id")
+
+	// TODO
+	r.POST("/playlists")
+	r.POST("/playlists/:id/songs/:song_id")
+
+	// TODO
+	r.DELETE("/playlists/:id")
+	r.DELETE("/playlists/:id/songs/:song_id")
 
 	r.Run(":8080")
 }
