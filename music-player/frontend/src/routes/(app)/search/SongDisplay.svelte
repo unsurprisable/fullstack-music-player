@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Song } from "$lib/types";
   
-  let { song, onclick } = $props<{song: Song, onclick: Function}>();
+  export let song: Song;
+  export let deleteAction: () => void;
 </script>
 
 <p>======================================================</p>
@@ -13,5 +14,5 @@
   Your browser does not support the audio element.
 </audio>
 <div>
-  <button {onclick}>Delete</button>
+  <button onclick={deleteAction}>Delete</button>
 </div>

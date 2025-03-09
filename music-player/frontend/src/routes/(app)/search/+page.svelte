@@ -57,7 +57,7 @@
     </div>
   {:else}
     {#each songs as song}
-      <SongDisplay {song} onclick={() => {deleteSong(song.id)}} />
+      <SongDisplay {song} deleteAction={() => {deleteSong(song.id)}} />
     {/each}
   {/if}
 {/if}

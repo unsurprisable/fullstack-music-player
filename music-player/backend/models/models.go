@@ -10,3 +10,13 @@ type Song struct {
 	Album      string
 	UploadedAt time.Time
 }
+
+type Playlist struct {
+	ID        int
+	Name      string
+	CreatedAt time.Time
+}
+
+type CreatePlaylistRequest struct {
+	Name string `json:"name"`
+}

@@ -35,7 +35,7 @@ func main() {
 	})
 
 	// add listener for POST request to upload songs
-	r.POST("/upload", handlers.UploadSong)
+	r.POST("/upload", handlers.HandleUploadedSong)
 
 	// get all songs or by id/filename
 	r.GET("/songs", handlers.GetAllSongs)
@@ -46,17 +46,17 @@ func main() {
 	r.GET("/songs/clear", handlers.ResetStoredData)
 	r.DELETE("/songs/:id", handlers.DeleteSongByID)
 
-	// TODO
-	r.GET("/playlists")
-	r.GET("/playlists/:id")
+	// create new playlist or add song to existing one by id
+	r.POST("/playlists", handlers.CreatePlaylist)
+	r.POST("/playlists/:id/songs/:song_id", handlers.AddSongToPlaylist)
 
-	// TODO
-	r.POST("/playlists")
-	r.POST("/playlists/:id/songs/:song_id")
+	// get all playlists or by id
+	r.GET("/playlists", handlers.GetAllPlaylists)
+	r.GET("/playlists/:id", handlers.GetPlaylistByID)
 
-	// TODO
-	r.DELETE("/playlists/:id")
-	r.DELETE("/playlists/:id/songs/:song_id")
+	// delete playlist or remove song from one by id
+	r.DELETE("/playlists/:id", handlers.DeletePlaylistByID)
+	r.DELETE("/playlists/:id/songs/:song_id", handlers.DeleteSongFromPlaylist)
 
 	r.Run(":8080")
 }

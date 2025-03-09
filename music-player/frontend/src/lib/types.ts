@@ -6,3 +6,10 @@ export interface Song {
   uploadedAt: string,
   fileURL: string,
 }
+
+export interface Playlist {
+  id: number,
+  name: string,
+  createdAt: string,
+  songIDs: number[],
+}
