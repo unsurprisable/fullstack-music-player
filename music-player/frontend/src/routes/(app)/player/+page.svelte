@@ -2,9 +2,10 @@
 
 <script lang="ts">
     import { apiFetch } from "$lib/api";
-  import type { Song } from "$lib/types";
+  import type { Playlist, Song } from "$lib/types";
+    import PlaylistElement from "./PlaylistElement.svelte";
   import SongElement from "./SongElement.svelte";
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
 
   let audio: HTMLAudioElement = new Audio();
   let playing: boolean = false;
@@ -13,21 +14,34 @@
   let volume: number = 1.0;
   let enableLooping: boolean = false;
   
+  let playlists: Playlist[] | null = null;
+  let playlist: Playlist | null = null
   let songs: Song[] | null = null;
   let song: Song | null = null;
   let songIndex : number = 0;
 
-  fetchAllSongs();
-
-  async function fetchAllSongs() {
+  async function fetchAllPlaylists() {
     try {
-      const data: Song[] = await apiFetch<Song[]>("/songs");
-      songs = data;
-      song = songs[0];
-      loadSong(song);
+      const data: Playlist[] = await apiFetch<Playlist[]>("/playlists");
+      playlists = data;
     } catch (error) {
       console.error(error);
       alert("Unable to fetch songs");
+    }
+  }
+
+  async function fetchSongsFromPlaylist() {
+    if (!playlist) return;
+    try {
+      const data: Song[] = await apiFetch<Song[]>("/playlists/"+playlist.id+"/songs");
+      console.log(data);
+      songs = data;
+      song = songs[0]
+      songIndex = 0;
+      playing = true;
+      loadSong(song)
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -115,25 +129,45 @@
     audio.pause();
     audio.currentTime = 0;
   })
+
+  onMount(() => {
+    fetchAllPlaylists();
+  })
 </script>
 
-{#if songs}
+{#if playlists}
   <div>
-    <h3>Choose a song:</h3>
-    {#each songs as s, i}
+    <h3>Choose a playlist:</h3>
+    {#each playlists.toReversed() as p}
      <div style="padding: 2px;">
-      <SongElement song={s} onclick={() => {
-        song = s;
-        songIndex = i;
-        playing = true;
-        loadSong(song)
+      <PlaylistElement playlist={p} onclick={() => {
+        playlist = p;
+        fetchSongsFromPlaylist();
       }} />
      </div>
     {/each}
   </div>
 {:else}
   <div>
-    <p>Please select a song.</p>
+    <p>Please select a playlist.</p>
+  </div>
+{/if}
+
+{#if songs && playlist}
+  <div>
+    <h3>Tracklist: {playlist.name}</h3>
+    {#each songs as s, i}
+      <div>
+        {#if songIndex == i}
+          <span>{"→"} </span>
+        {/if}
+        <SongElement song={s} onclick={() => {
+          songIndex = i
+          song = s
+          loadSong(s)
+        }} />
+      </div>
+    {/each}
   </div>
 {/if}
 

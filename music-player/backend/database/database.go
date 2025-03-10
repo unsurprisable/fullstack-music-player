@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/lib/pq"
 )
 
 const schemaPath = "../db/schema.sql"
@@ -56,6 +58,19 @@ func CloseDB() {
 	if db != nil {
 		db.Close()
 	}
+}
+
+func makeArrayQuery[T any](query string, array []T) (string, []interface{}) {
+	placeholders := make([]string, len(array))
+	args := make([]interface{}, len(array))
+	for i, element := range array {
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
+		args[i] = element
+	}
+
+	q := fmt.Sprintf(query, strings.Join(placeholders, ","))
+
+	return q, args
 }
 
 func InsertSongMetadata(title, artist, album, filename string) error {
@@ -259,6 +274,37 @@ func getSongsForPlaylist(playlistID int) ([]int, error) {
 	}
 
 	return songIDs, nil
+}
+
+func GetSongsFromPlaylist(playlistID int) ([]models.Song, error) {
+	songIDs, err := getSongsForPlaylist(playlistID)
+	if err != nil {
+		return nil, err
+	}
+
+	// get the query to look through the array of songs
+	query, args := makeArrayQuery("SELECT id, filename, title, artist, album, uploaded_at FROM songs WHERE id IN (%s)", songIDs)
+
+	// make the query follow the original order of the ids in the array (so the playlist maintains its order)
+	query = fmt.Sprintf(query+" ORDER BY array_positions($%d, id)", len(songIDs)+1)
+	args = append(args, pq.Array(songIDs))
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var songs []models.Song
+	for rows.Next() {
+		var song models.Song
+		if err := rows.Scan(&song.ID, &song.Filename, &song.Title, &song.Artist, &song.Album, &song.UploadedAt); err != nil {
+			return nil, err
+		}
+		songs = append(songs, song)
+	}
+
+	return songs, nil
 }
 
 func AddSongToPlaylist(playlistID, songID int) error {

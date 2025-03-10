@@ -37,7 +37,7 @@ func main() {
 	// add listener for POST request to upload songs
 	r.POST("/upload", handlers.HandleUploadedSong)
 
-	// get all songs or by id/filename
+	// get all songs or by id/filename or from playlist
 	r.GET("/songs", handlers.GetAllSongs)
 	r.GET("/songs/:id", handlers.GetSongByID)
 	r.GET("/songs/file/:filename", handlers.ServeSongFile)
@@ -50,9 +50,10 @@ func main() {
 	r.POST("/playlists", handlers.CreatePlaylist)
 	r.POST("/playlists/:id/songs/:song_id", handlers.AddSongToPlaylist)
 
-	// get all playlists or by id
+	// get all playlists or by id or get songs in playlist
 	r.GET("/playlists", handlers.GetAllPlaylists)
 	r.GET("/playlists/:id", handlers.GetPlaylistByID)
+	r.GET("/playlists/:id/songs", handlers.GetSongsFromPlaylist)
 
 	// delete playlist or remove song from one by id
 	r.DELETE("/playlists/:id", handlers.DeletePlaylistByID)

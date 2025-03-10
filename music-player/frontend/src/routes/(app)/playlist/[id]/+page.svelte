@@ -17,18 +17,17 @@
       let data: Playlist = await apiFetch<Playlist>("/playlists/" + id);
       console.log(data);
       playlist = data;
-      songs = Array(playlist.songIDs.length).fill(null)
-      playlist.songIDs.forEach((id, i) => {fetchSong(i, id)})
+      fetchSongs();
     } catch (error) {
       console.error(error);
     }
   }
 
-  async function fetchSong(i: number, id: number) {
+  async function fetchSongs() {
     if (songs == null) return
     try {
-      let data: Song = await apiFetch<Song>("/songs/" + id);
-      songs[i] = data;
+      let data: Song[] = await apiFetch<Song[]>("/playlists/"+ id +"/songs");
+      songs = data;
     } catch (error) {
       console.error(error);
     }

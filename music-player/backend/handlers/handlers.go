@@ -341,3 +341,28 @@ func DeleteSongFromPlaylist(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Song successfully removed from playlist!"})
 }
+
+func GetSongsFromPlaylist(c *gin.Context) {
+	rawId := c.Param("id")
+
+	id, err := strconv.Atoi(rawId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID."})
+		return
+	}
+
+	songs, err := database.GetSongsFromPlaylist(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch songs."})
+		log.Println(err)
+		return
+	}
+
+	formattedSongs := make([]gin.H, len(songs))
+
+	for i, song := range songs {
+		formattedSongs[i] = exportSong(&song)
+	}
+
+	c.JSON(http.StatusOK, formattedSongs)
+}
