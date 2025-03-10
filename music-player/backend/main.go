@@ -59,5 +59,8 @@ func main() {
 	r.DELETE("/playlists/:id", handlers.DeletePlaylistByID)
 	r.DELETE("/playlists/:id/songs/:song_id", handlers.DeleteSongFromPlaylist)
 
+	// TODO: routes for editing relevant metadata of stored songs DIRECTLY FROM THE WEBSITE
+	// (probably won't mess with the metadata of the actual .mp3 files because that sounds hard and pointless)
+
 	r.Run(":8080")
 }
