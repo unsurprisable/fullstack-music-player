@@ -282,6 +282,11 @@ func GetSongsFromPlaylist(playlistID int) ([]models.Song, error) {
 		return nil, err
 	}
 
+	// no songs in playlist
+	if len(songIDs) == 0 {
+		return nil, nil
+	}
+
 	// get the query to look through the array of songs
 	query, args := makeArrayQuery("SELECT id, filename, title, artist, album, uploaded_at FROM songs WHERE id IN (%s)", songIDs)
 
