@@ -1,23 +1,18 @@
+<!-- MAIN LAYOUT FOR THE MUSIC PLAYER -->
+ 
 <script>
-
-    import MusicPlayer from "$lib/components/MusicPlayer.svelte";
-
+  import MusicPlayer from "$lib/components/MusicPlayer.svelte";
 </script>
-<slot />
 
-<div class="player-container">
-  <MusicPlayer />
+<div class="main-content">
+  <slot />
 </div>
 
+<MusicPlayer />
+
 <style>
-  .player-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #222;
-    color: white;
-    padding: 30px;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+  /* so the music player doesn't block stuff at the bottom and u can scroll further up */
+  .main-content {
+    margin-bottom: 140px;
   }
 </style>

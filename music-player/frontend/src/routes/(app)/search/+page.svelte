@@ -4,6 +4,7 @@
   import SongDisplay from "./SongDisplay.svelte";
   import type { Song } from "$lib/types";
   import { apiFetch } from "$lib/api";
+    import SongCard from "$lib/components/SongCard.svelte";
 
   let inputID = $state<number>(1)
   let songs = $state<Song[] | null>(null);
@@ -21,7 +22,6 @@
   async function fetchAllSongs() {
     try {
       const data: Song[] = await apiFetch<Song[]>("/songs");
-      console.log(data);
       songs = data;
     } catch (error) {
       console.error(error);
@@ -51,13 +51,28 @@
 <button onclick={fetchSong}>Fetch</button>
 
 {#if songs}
+<div style="margin-top: 10px;">
   {#if songs.length == 0}
     <div>
       <span>No songs in database.</span>
     </div>
   {:else}
-    {#each songs as song}
-      <SongDisplay {song} deleteAction={() => {deleteSong(song.id)}} />
-    {/each}
+    <div class="song-container">
+      {#each songs as song}
+        <SongCard {song} />
+        <button onclick={() => deleteSong(song.id)} style="margin-bottom: 10px;">Delete</button>
+      {/each}
+    </div>
   {/if}
+</div>
 {/if}
+
+
+
+<style>
+  .song-container {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+</style>

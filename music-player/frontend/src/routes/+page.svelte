@@ -3,7 +3,7 @@
 </script>
 
 <Redirect href="/admin">Admin Controls</Redirect>
-<Redirect href="/search">Song Search</Redirect>
 <Redirect href="/upload">Song Uploader</Redirect>
 <Redirect href="/playlist">Playlist Browser</Redirect>
-<Redirect href="/player">Audio Player    {"<<<<<"}</Redirect>
+<Redirect href="/search">Song Search</Redirect>
+<Redirect href="/player">Old Audio Player (ancient fossil)</Redirect>

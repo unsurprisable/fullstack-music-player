@@ -3,6 +3,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { apiFetch } from "$lib/api";
+  import PlaylistOverview from "$lib/components/PlaylistOverview.svelte";
   import type { Song, Playlist } from "$lib/types";
   import { onMount } from "svelte";
 
@@ -15,9 +16,7 @@
   async function fetchPlaylist() {
     try {
       let data: Playlist = await apiFetch<Playlist>("/playlists/" + id);
-      console.log(data);
       playlist = data;
-      fetchSongs();
     } catch (error) {
       console.error(error);
     }
@@ -61,26 +60,11 @@
 </script>
 
 {#if playlist}
-  <h3>{playlist.name}</h3>
   <input type="number" bind:value={addSongID} />
   <button onclick={addSong}>Add Song</button>
 
-  <div>
-    {#if songs && songs.length > 0}
-      {#each songs as song, i}
-        <div style="padding-top: 7px;">
-          {i+1}. 
-          {#if song}
-            {song.artist} - {song.title} [{song.album}]
-            <div>
-              <button onclick={() => {removeSong(song.id)}}>Remove</button>
-            </div>
-          {:else}
-            <em>Loading song...</em>
-          {/if}
-        </div>
-      {/each}
-    {/if}
+  <div style="padding-top: 8px;">
+    <PlaylistOverview {playlist} />
   </div>
 {:else}
   <div>Couldn't find playlist with ID: "{id}"</div>
