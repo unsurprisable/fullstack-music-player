@@ -1,6 +1,9 @@
 -- table storing every individual song entry
 CREATE TABLE IF NOT EXISTS songs (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- source TEXT CHECK (source IN ('local', 'spotify')) NOT NULL,
+    -- filename TEXT,
+    -- spotify_uri TEXT,
     filename TEXT NOT NULL,
     title TEXT,
     artist TEXT,

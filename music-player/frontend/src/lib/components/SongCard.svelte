@@ -1,6 +1,6 @@
 <script lang="ts">
   import { loadSong, setPlaylist } from "$lib/stores/player";
-  import type { Playlist, Song } from "$lib/types";
+  import type {  Song } from "$lib/types";
   import { Play } from "lucide-svelte";
 
   export let song: Song | null = null;

@@ -3,6 +3,7 @@
   import { Play, Pause, Volume2, Shuffle, SkipBack, Repeat, SkipForward } from "lucide-svelte";
   
   function formatTime(seconds: number) {
+    if (isNaN(seconds)) return "0:00";
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = Math.floor(seconds % 60);
@@ -102,9 +103,11 @@
   }
   .left-section {
     justify-content: flex-start;
+    flex: 1;
   }
   .right-section {
     justify-content: flex-end;
+    flex: 1;
   }
   .song-info {
     display: flex;
@@ -117,6 +120,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex: 2;
   }
   .playback-controls {
     display: flex;
@@ -131,10 +135,11 @@
     align-items: center;
     flex-direction: row;
     justify-content: center;
+    width: 100%;
   }
   .progress-bar input[type="range"] {
-    width: 600px;
-    margin: 0 10px
+    width: 100%;
+    margin: 0 10px;
   }
   .play-button {
     width: 35px;
@@ -151,9 +156,10 @@
   .extra-controls {
     display: flex;
     align-items: center;
+    width: 50%
   }
   .extra-controls input[type="range"] {
-    width: 120px;
+    width: 100%;
     margin-left: 8px;
   }
   .song-title {

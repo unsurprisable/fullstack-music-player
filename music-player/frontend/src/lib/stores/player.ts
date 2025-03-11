@@ -31,6 +31,9 @@ export function loadSong(song: Song, autoPlay: boolean = false) {
   audio.load();
   currentSong.set(song);
 
+  progress.set(0);
+  duration.set(0);
+
   if (autoPlay) {
     isPlaying.set(true);
   }
@@ -44,7 +47,9 @@ export function loadSong(song: Song, autoPlay: boolean = false) {
   };
 
   audio.ontimeupdate = () => {
-    progress.set((audio.currentTime / audio.duration) * 100);
+    if (audio.duration) {
+      progress.set((audio.currentTime / audio.duration) * 100);
+    }
   }
 
   audio.onended = () => {

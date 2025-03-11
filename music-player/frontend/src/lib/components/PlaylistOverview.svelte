@@ -60,6 +60,7 @@
   .playlist-info {
     display: flex;
     flex-direction: column;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     padding: 25px 20px;
   }
   .playlist-name {
@@ -67,6 +68,7 @@
     font-weight: 900;
   }
   .song-count {
+    color: #afafaf;
     font-size: 24px;
   }
   .song-container {
