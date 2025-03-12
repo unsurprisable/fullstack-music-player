@@ -33,11 +33,25 @@
   <!-- Playback Controls -->
   <div class="playback-container">
     <div class="playback-controls">
-      <button class="control-button" onclick={toggleShuffle} style="color: {$enableShuffle ? "lime" : "inherit"};"><Shuffle size="18" /></button>
+      <div class="control-button-container">
+        <button class="control-button" onclick={toggleShuffle}>
+          <Shuffle size="18" color={$enableShuffle ? "lime" : "white"}/>
+          {#if $enableShuffle}
+            <span class="indicator-dot"></span>
+          {/if}
+        </button>
+      </div>
       <button class="control-button" onclick={previousSong}><SkipBack size="22" /></button>
       <button class="play-button" onclick={togglePlaying}>{#if $isPlaying}<Pause size="22" fill="true" />{:else}<Play size="22" fill="true"/>{/if}</button>
       <button class="control-button" onclick={nextSong}><SkipForward size="22" /></button>
-      <button class="control-button" onclick={toggleLooping} style="color: {$enableLooping ? "lime" : "inherit"};"><Repeat size="18" /></button>
+      <div class="control-button-container">
+        <button class="control-button" onclick={toggleLooping}>
+          <Repeat size="18" color= {$enableLooping ? "lime" : "white"}/>
+          {#if $enableLooping}
+            <spon class="indicator-dot"></spon>
+          {/if}
+        </button>
+      </div>
     </div>
     <div class="progress-bar">
       <span class="text">{formatTime($progress * $duration / 100)}</span>
@@ -128,7 +142,7 @@
     flex-direction: row;
     gap: 20px;
     padding-left: 19px;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
   }
   .progress-bar {
     display: flex;
@@ -148,10 +162,31 @@
     border: none;
     margin-top: -2px;
   }
+  .control-button-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   .control-button {
     background: none;
     color: white;
     border: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .indicator-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: lime;
+    border-radius: 50%;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
   }
   .extra-controls {
     display: flex;

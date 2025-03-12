@@ -4,7 +4,6 @@ import (
 	"backend/database"
 	"backend/handlers"
 	"log"
-	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -28,11 +27,6 @@ func main() {
 		AllowHeaders:     []string{"Content-Type"},
 		AllowCredentials: true,
 	}))
-
-	// add listener for GET requests on root directory saying that the backend is running
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "Backend is running!"})
-	})
 
 	// add listener for POST request to upload songs
 	r.POST("/upload", handlers.HandleUploadedSong)
